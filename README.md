@@ -20,9 +20,8 @@ To use any of the helpers provided by this library:
 
 ## Usage
 
-### Reward Tools Decentraland POAP Booth
-Spawn a Decentraland POAP booth compatible with [https://reward.tools](https://reward.tools)
-
+### POAP Booth
+Spawn a POAP booth.
    ```ts
       import { RTPOAPBooth } from "rt-dcl-sdk-6";
       import { AlertSystem } from "zootools";
@@ -33,7 +32,7 @@ Spawn a Decentraland POAP booth compatible with [https://reward.tools](https://r
                   position: new Vector3(8,0,8),
             },
          },
-         "96,99",
+         "96,99", //Scene base parcel
          (alert: string) => alertSystem.new(alert),
          // "rewardId", //set rewardId here
       )
