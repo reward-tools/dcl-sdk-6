@@ -41,20 +41,16 @@ export class RTClient {
         try {
             this.room = await this.client.joinOrCreate<any>(roomName, options);
             this.onConnected(id);
-            //TODO HIDE
             this.room.onStateChange((state) => {
                 this.debug && this.log(`STATE CHANGE`, state)
             });
-
             this.room.onLeave((code) => {
                 this.debug && this.log(`Left, id:${id} code =>`, code);
                 this.onDisconnect(id, handleReconnection);
             });
-
             this.room.onError((code) => {
                 this.debug && this.log(`Error, id:${id} code =>`, code);
             });
-
             return this.room;
         } catch (e: any) {
             this.onDisconnect(id, handleReconnection);
@@ -64,13 +60,11 @@ export class RTClient {
 
     onConnected(id: string) {
         this.debug && this.log(`Connected to socket server (id:${id})`);
-        // ConnectionDebugger.setGameServerConnected(true);
         this.attempts = 0;
     }
 
     onDisconnect(id: string, reconnect: () => void) {
         this.debug && this.log(`Disconnected from socket server (id:${id})`);
-        // ConnectionDebugger.setGameServerConnected(false);
         reconnect();
     }
 
