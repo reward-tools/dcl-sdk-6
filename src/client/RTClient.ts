@@ -3,11 +3,11 @@
 ///<reference lib="es2015.collection" />
 ///<reference lib="es2015.iterable" />
 
-import { makeid } from "zootools";
 import { Client, Room } from "colyseus.js";
 import { getCurrentRealm } from "@decentraland/EnvironmentAPI";
 import { getUserData } from "@decentraland/Identity";
 import { Dash_Wait } from "dcldash";
+import { zootils } from "zootools";
 
 export class RTClient {
 
@@ -23,7 +23,7 @@ export class RTClient {
     async connect(roomName: string, options: any = {}): Promise<Room | null> {
 
         //An ID for debugging connection instances
-        const id = makeid(5);
+        const id = zootils.string.makeid(5);
 
         //Record attempts. In case of disconnect we will use this to time the reconnection attempt
         this.attempts++;
