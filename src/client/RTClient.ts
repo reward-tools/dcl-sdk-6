@@ -7,6 +7,7 @@ import { Client, Room } from "colyseus.js";
 import { getCurrentRealm } from "@decentraland/EnvironmentAPI";
 import { getUserData } from "@decentraland/Identity";
 import { Dash_Wait } from "dcldash";
+import { makeid } from "zootools";
 
 export class RTClient {
 
@@ -22,8 +23,7 @@ export class RTClient {
     async connect(roomName: string, options: any = {}): Promise<Room | null> {
 
         //An ID for debugging connection instances
-        const rand = Math.random().toString();
-        const id = rand.substring(rand.length-5);
+        const id = makeid(5);
 
         //Record attempts. In case of disconnect we will use this to time the reconnection attempt
         this.attempts++;
