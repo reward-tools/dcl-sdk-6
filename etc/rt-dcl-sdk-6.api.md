@@ -10,9 +10,9 @@
 /// <reference lib="es2015.symbol" />
 /// <reference lib="es2015.symbol.wellknown" />
 
-import { Booth } from 'zootools/dist/entities/Booth/Booth';
+import { Booth } from 'zootools';
 import { Client } from 'colyseus.js';
-import { IBoothProps } from 'zootools/dist/entities/Booth/Booth';
+import { IBoothProps } from 'zootools';
 import { Realm } from '@decentraland/EnvironmentAPI';
 import { Room } from 'colyseus.js';
 import { UserData } from '@decentraland/Identity';
