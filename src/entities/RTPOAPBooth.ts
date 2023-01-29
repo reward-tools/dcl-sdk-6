@@ -3,8 +3,8 @@ import { getUserData, UserData } from "@decentraland/Identity";
 import { signedFetch } from "@decentraland/SignedFetch";
 import { Room } from "colyseus.js";
 import { Dash_Wait } from "dcldash";
-import { Booth, IBoothProps } from "zootools";
-import { RTClient } from "src/client/RTClient";
+import { Booth, IBoothProps } from "zootools/dist/entities/Booth/Booth";
+import { RTClient } from "../client/RTClient";
 
 export class RTPOAPBooth {
     public booth: Booth;

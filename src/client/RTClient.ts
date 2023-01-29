@@ -7,7 +7,7 @@ import { Client, Room } from "colyseus.js";
 import { getCurrentRealm } from "@decentraland/EnvironmentAPI";
 import { getUserData } from "@decentraland/Identity";
 import { Dash_Wait } from "dcldash";
-import { makeid } from "zootools";
+import { makeid } from "zootools/dist/utils/index";
 
 export class RTClient {
 

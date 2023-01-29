@@ -8,5 +8,5 @@
 
 |  Package | Description |
 |  --- | --- |
-|  [sdk-library](./sdk-library.md) |  |
+|  [rt-dcl-sdk-6](./rt-dcl-sdk-6.md) |  |
 
