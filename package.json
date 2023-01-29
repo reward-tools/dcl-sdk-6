@@ -46,7 +46,7 @@
   "peerDependencies": {
     "colyseus.js": "latest",
     "dcldash": "^0.0.34-20230112183923.commit-1cf0347",
-    "zootools": "^0.1.26-20230129195230.commit-85b9dfa"
+    "zootools": "^0.1.26"
   },
   "engines": {
     "node": ">=16.0.0",
