@@ -6,11 +6,26 @@
     "dist"
   ],
   "compilerOptions": {
-    "module": "ESNext",
+    "target": "es6",
+    "module": "esnext",
+    "strict": true,
+    "removeComments": true,
+    "moduleResolution": "node",
     "declaration": true,
-    "declarationDir": "./types",
-    "declarationMap": true,
-    "outDir": "dist"
+    "declarationDir": ".",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "noLib": false,
+    "paths": {
+      "dcldash": [
+        "node_modules\\dcldash\\dist\\index.d.ts",
+        "node_modules/dcldash/dist/index.d.ts"
+      ],
+      "zootools": [
+        "node_modules\\zootools\\dist\\index.d.ts",
+        "node_modules/zootools/dist/index.d.ts"
+      ]
+    },
   },
   "extends": "./node_modules/decentraland-ecs/types/tsconfig.json"
 }

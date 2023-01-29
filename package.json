@@ -44,7 +44,8 @@
     "ts-jest": "^27.1.4"
   },
   "peerDependencies": {
-    "dcldash": "latest",
+    "dcldash": "next",
+    "zootools": "next",
     "colyseus.js": "latest"
   },
   "engines": {
