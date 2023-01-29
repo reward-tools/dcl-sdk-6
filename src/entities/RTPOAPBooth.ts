@@ -120,12 +120,13 @@ export class RTPOAPBooth {
                         timezone: new Date().toString(),
                     }),
                 })
-                this.log(response.status, response.statusText)
+                this.log("response",response.status, response.statusText)
                 const json = JSON.parse(response.text ?? "");
                 const { message } = json;
                 this.rtProps.debug && this.log("Reward claim", { json })
                 this.rtProps.onAlert?.(message)
             } catch (err: any) {
+                this.log("err",err.status, err.statusText)
                 this.rtProps.onAlert?.(err?.message ?? `An error has occcured`)
             }
         })
