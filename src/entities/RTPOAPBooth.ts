@@ -1,4 +1,4 @@
-import { getCurrentRealm, Realm } from "@decentraland/EnvironmentAPI";
+import { getCurrentRealm, isPreviewMode, Realm } from "@decentraland/EnvironmentAPI";
 import { getUserData, UserData } from "@decentraland/Identity";
 import { signedFetch } from "@decentraland/SignedFetch";
 import { Room } from "colyseus.js";
@@ -37,23 +37,13 @@ export class RTPOAPBooth {
             buttonModelPath: `poap_assets/models/POAP_button.glb`,
             ...rtProps,
         })
-        this.booth.button.addComponentOrReplace(new OnPointerDown(() => {
-            this.booth.onButtonClick();
-            this.booth.button.getComponent(Animator).getClip('Button_Action').play();
-            Dash_Wait(() => {
-                this.booth.button.getComponent(Animator).getClip('Button_Action').stop();
-            }, 1)
-        }, {
-            hoverText: `Claim Attendance Token`,
-        }))
+        
         this.client = new RTClient(this.rtProps.endpoint!, this.rtProps.debug!);
         executeTask(async () => {
             await this.loadUserData();
             this.initialized = true;
-            this.booth.onButtonClick = () => this.getButtonClick();
-            if (this.rtProps?.rewardId) {
-                this.setRewardId(this.rtProps.rewardId);
-            }
+            this.setOnButtonClick();
+            if (this.rtProps?.rewardId) this.setRewardId(this.rtProps.rewardId);
             this.room = await this.client.connect(`update`, {
                 location: this.rtProps.baseParcel,
             });
@@ -86,6 +76,40 @@ export class RTPOAPBooth {
         } catch (err: any) {
             this.rtProps.debug! && this.log(`RTPOAPBooth Fetch Error: ${err.message}`)
             return null
+        }
+    }
+
+    async setRewardId(rewardId: string) {
+        this.rtProps.debug && this.log(`setRewardID`, rewardId)
+        this.rtProps.rewardId = rewardId;
+        if (!this.initialized) {
+            this.rtProps.debug && this.log(`RTPOAPBooth not initialized. Waiting 5 seconds to reattempt..`)
+            Dash_Wait(() => {
+                this.setRewardId(rewardId);
+            }, 5)
+            return;
+        }
+        try {
+            const reward = await this.getReward(rewardId);
+            if (reward == null) {
+                const isPreview = await isPreviewMode();
+                if(isPreview){
+                    this.rtProps.onAlert?.(`Deploy your scene to claim POAP`);
+                }else{
+                    this.rtProps.onAlert?.(`Reward not found`);
+                }
+                return;
+            }
+            this.rewardData = reward?.data;
+            this.rtProps.debug && this.log(`Got Reward`, this.rewardData)
+            this.booth.setImage(
+                this.rewardData.imageUrl,
+                `https://poap.gallery/event/${this.rewardData.event_id}`,
+                `View Event on POAP.gallery`
+            )
+            this.setOnButtonClick();
+        } catch (err: any) {
+            this.rtProps.debug && this.log(`Got Error`, err.message)
         }
     }
 
@@ -132,32 +156,17 @@ export class RTPOAPBooth {
         })
     }
 
-    async setRewardId(rewardId: string) {
-        this.rtProps.debug && this.log(`setRewardID`, rewardId)
-        this.rtProps.rewardId = rewardId;
-        if (!this.initialized) {
-            this.rtProps.debug && this.log(`RTPOAPBooth not initialized. Waiting 5 seconds to reattempt..`)
+    setOnButtonClick(){
+        this.booth.onButtonClick = () => this.getButtonClick();
+        this.booth.button.addComponentOrReplace(new OnPointerDown(() => {
+            this.booth.onButtonClick();
+            this.booth.button.getComponent(Animator).getClip('Button_Action').play();
             Dash_Wait(() => {
-                this.setRewardId(rewardId);
-            }, 5)
-            return;
-        }
-        try {
-            const reward = await this.getReward(rewardId);
-            if (reward == null) {
-                this.rtProps.onAlert?.(`Reward not found`);
-                return;
-            }
-            this.rewardData = reward?.data;
-            this.rtProps.debug && this.log(`Got Reward`, this.rewardData)
-            this.booth.setImage(
-                this.rewardData.imageUrl,
-                `https://poap.gallery/event/${this.rewardData.event_id}`,
-                `View Event on POAP.gallery`
-            )
-        } catch (err: any) {
-            this.rtProps.debug && this.log(`Got Error`, err.message)
-        }
+                this.booth.button.getComponent(Animator).getClip('Button_Action').stop();
+            }, 1)
+        }, {
+            hoverText: `Claim Attendance Token`,
+        }))
     }
 
     log(...args: any[]) {
