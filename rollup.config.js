@@ -13,6 +13,13 @@ export default {
   external: [
     /@dcl\//, 
     /@decentraland\//, 
+    '@decentraland/Identity',
+    '@decentraland/EnvironmentAPI',
+    '@decentraland/web3-provider',
+    '@decentraland/RestrictedActions',
+    '@decentraland/SignedFetch',
+    '@decentraland/EthereumController',
+    'decentraland-ecs',
     "dcldash",  
     "zootools", 
     "colyseus.js",
