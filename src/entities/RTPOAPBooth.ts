@@ -161,6 +161,6 @@ export class RTPOAPBooth {
     }
 
     log(...args: any[]) {
-        log(`[ 🏆 RewardTools POAPBooth 🏆 ]`, ...args)
+        log(`[ 🏆 RewardToolsPOAPBooth 🏆 ]`, ...args)
     }
 }
