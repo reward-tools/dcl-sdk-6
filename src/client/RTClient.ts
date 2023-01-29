@@ -16,11 +16,14 @@ export class RTClient {
     client: Client;
     attempts = 0;
 
-    constructor(public endpoint: string, public debug: boolean = true) {
+    constructor(public endpoint: string, public location: string, public debug: boolean = true) {
         this.client = new Client(this.endpoint);
     }
 
-    async connect(roomName: string, options: any = {}): Promise<Room | null> {
+    async connect(options: any & {
+        location: string;
+        roomName: string;
+    } = {}): Promise<Room | null> {
 
         //An ID for debugging connection instances
         const id = makeid(5);
@@ -29,17 +32,17 @@ export class RTClient {
         this.attempts++;
         if (this.attempts > 15) this.attempts = 15;
         this.debug && this.log(`Attempting connection to server id:${id} (attempts: ${this.attempts})`)
-
+        
         //Populate user and options
         options.realm = await getCurrentRealm();
         options.userData = await getUserData();
         options.timezone = new Date().toString();
         this.options = options;
         const handleReconnection = () => {
-            Dash_Wait(() => this.connect(roomName, options), this.attempts);
+            Dash_Wait(() => this.connect(options), this.attempts);
         }
         try {
-            this.room = await this.client.joinOrCreate<any>(roomName, options);
+            this.room = await this.client.joinOrCreate<any>(options.roomName, options)
             this.onConnected(id);
             this.room.onStateChange((state) => {
                 this.debug && this.log(`STATE CHANGE`, state)
@@ -69,6 +72,6 @@ export class RTClient {
     }
 
     log(...args: any[]) {
-        log(`[ 🏆 RewardToolsClient 🏆 ]`, ...args)
+        log(`[ 🏆 RTClient 🏆 ]`, ...args)
     }
 }

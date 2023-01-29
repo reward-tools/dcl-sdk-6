@@ -3,6 +3,7 @@ import { getUserData, UserData } from "@decentraland/Identity";
 import { signedFetch } from "@decentraland/SignedFetch";
 import { Room } from "colyseus.js";
 import { Dash_Wait } from "dcldash";
+import { RTClientManager } from "src/client/RTClientManager";
 import { Booth, IBoothProps } from "zootools";
 import { RTClient } from "../client/RTClient";
 
@@ -37,18 +38,37 @@ export class RTPOAPBooth {
             buttonModelPath: `poap_assets/models/POAP_button.glb`,
             ...rtProps,
         })
-        
-        this.client = new RTClient(this.rtProps.endpoint!, this.rtProps.debug!);
+        this.client = (RTClientManager.getOrCreateClient(
+            this.rtProps.endpoint!, 
+            this.rtProps.baseParcel!, 
+            this.rtProps.debug!,
+        )).client;
+        void this.connection();
         executeTask(async () => {
             await this.loadUserData();
             this.initialized = true;
             this.setOnButtonClick();
             if (this.rtProps?.rewardId) this.setRewardId(this.rtProps.rewardId);
-            this.room = await this.client.connect(`update`, {
-                location: this.rtProps.baseParcel,
-            });
-            if (!this.room) this.log(`Failed to connect to reward.tools Client`)
-        })
+        });
+    }
+
+    async connection(){
+        const mngrRoom = await RTClientManager.joinOrCreateRoom(
+            this.rtProps.baseParcel,
+            `update`,
+        );
+        if(mngrRoom?.loading === true){
+            Dash_Wait(() => {
+                this.log(`Room is still loading. Waiting 5 Seconds for reattempt.`)
+                this.connection();
+            }, 5);
+            return;
+        }
+        if(!mngrRoom?.room){
+            this.log(`Failed to connect to reward.tools Client`)
+            return;
+        }
+        this.room = mngrRoom.room;
     }
 
     async loadUserData() {
@@ -170,6 +190,6 @@ export class RTPOAPBooth {
     }
 
     log(...args: any[]) {
-        log(`[ 🏆 RewardToolsPOAPBooth 🏆 ]`, ...args)
+        log(`[ 🏆 RTPOAPBooth 🏆 ]`, ...args)
     }
 }
