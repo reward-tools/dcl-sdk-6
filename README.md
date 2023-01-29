@@ -26,16 +26,16 @@ Spawn a POAP booth.
    import { RTPOAPBooth } from "rt-dcl-sdk-6";
    import { AlertSystem } from "zootools";
    const alertSystem = new AlertSystem();
-const dispenser = new RTPOAPBooth(
-    {
-        transformArgs: {
+   const dispenser = new RTPOAPBooth(
+      {
+         transformArgs: {
             position: new Vector3(8, 0, 8),
-        },
-        baseParcel: `96,99`,
-        onAlert: (alert: string) => alertSystem.new(alert),
-        //rewardId: ``, //set rewardId here
-    },
-);
+         },
+         baseParcel: `96,99`,
+         onAlert: (alert: string) => alertSystem.new(alert),
+         //rewardId: ``, //set rewardId here
+      },
+   );
    dispenser.setRewardId("rewardId"); // or here
    engine.addEntity(dispenser.booth);
    ```

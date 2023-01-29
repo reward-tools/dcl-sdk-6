@@ -109,7 +109,7 @@ export class RTPOAPBooth {
                 const address = userData?.publicKey;
                 const displayName = userData?.displayName;
                 const callUrl = `${this.rtProps.endpoint!}/v1/poap/claim`;
-                let response = await signedFetch(callUrl, {
+                const response = await signedFetch(callUrl, {
                     headers: { "Content-Type": "application/json" },
                     method: "POST",
                     body: JSON.stringify({
@@ -120,7 +120,8 @@ export class RTPOAPBooth {
                         timezone: new Date().toString(),
                     }),
                 })
-                let json = JSON.parse(response.text ?? "");
+                this.log(response.status, response.statusText)
+                const json = JSON.parse(response.text ?? "");
                 const { message } = json;
                 this.rtProps.debug && this.log("Reward claim", { json })
                 this.rtProps.onAlert?.(message)
