@@ -21,7 +21,7 @@ export class RTPOAPBooth {
         public onAlert?: (alert: string) => void,
         public rewardId?: string,
         public endpoint: string = `https://api.reward.tools`,
-        public debug: boolean = true,
+        public debug: boolean = false,
     ) {
         this.booth = new Booth({
             transformArgs: rtProps.transformArgs!,
