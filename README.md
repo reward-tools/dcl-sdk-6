@@ -23,21 +23,21 @@ To use any of the helpers provided by this library:
 ### POAP Booth
 Spawn a POAP booth.
    ```ts
-      import { RTPOAPBooth } from "rt-dcl-sdk-6";
-      import { AlertSystem } from "zootools";
-      const alertSystem = new AlertSystem()
-      const dispenser = new RTPOAPBooth(
-         {
-            transformArgs: {
-                  position: new Vector3(8,0,8),
-            },
+   import { RTPOAPBooth } from "rt-dcl-sdk-6";
+   import { AlertSystem } from "zootools";
+   const alertSystem = new AlertSystem();
+   const dispenser = new RTPOAPBooth(
+      {
+         transformArgs: {
+               position: new Vector3(8,0,8),
          },
-         "96,99", //Scene base parcel
-         (alert: string) => alertSystem.new(alert),
-         // "rewardId", //set rewardId here
-      )
-      dispenser.setRewardId("rewardId"); // or here
-      engine.addEntity(dispenser.booth);
+      },
+      "96,99", //Scene base parcel
+      (alert: string) => alertSystem.new(alert),
+      // "rewardId", //set rewardId here
+   );
+   dispenser.setRewardId("rewardId"); // or here
+   engine.addEntity(dispenser.booth);
    ```
 
 Be sure to add the [poap_assets](https://github.com/tyzoo/tyzoo.github.io/tree/master/assets/poap_assets) folder to the root of your scene
