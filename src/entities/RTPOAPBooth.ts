@@ -7,6 +7,7 @@ import { Booth, IBoothProps } from "zootools";
 import { RTClient } from "../client/RTClient";
 
 export class RTPOAPBooth {
+
     public booth: Booth;
     public client!: RTClient;
     public room?: Room | null;
@@ -15,16 +16,20 @@ export class RTPOAPBooth {
     public realm!: Realm | undefined;
     public rewardData!: any;
     public lastClick: Date = new Date(new Date().getTime() - 5000);
+
     constructor(
-        public rtProps: Partial<IBoothProps>,
-        public baseParcel: string,
-        public onAlert?: (alert: string) => void,
-        public rewardId?: string,
-        public endpoint: string = `https://api.reward.tools`,
-        public debug: boolean = false,
+        public rtProps: Partial<IBoothProps> & {
+            transformArgs: TransformConstructorArgs;
+            baseParcel: string;
+            onAlert?: (alert: string) => void;
+            rewardId?: string;
+            endpoint?: string;
+            debug?: boolean;
+        },
     ) {
+        if (rtProps?.debug == undefined) this.rtProps.debug = false;
+        if (rtProps?.endpoint == undefined) this.rtProps.endpoint = `https://api.reward.tools`;
         this.booth = new Booth({
-            transformArgs: rtProps.transformArgs!,
             buttonText: `Claim this POAP`,
             onButtonClick: () => { },
             wrapTexturePath: `poap_assets/images/wrap1.png`,
@@ -41,18 +46,18 @@ export class RTPOAPBooth {
         }, {
             hoverText: `Claim Attendance Token`,
         }))
-        this.client = new RTClient(this.endpoint, this.debug);
+        this.client = new RTClient(this.rtProps.endpoint!, this.rtProps.debug!);
         executeTask(async () => {
             await this.loadUserData();
             this.initialized = true;
             this.booth.onButtonClick = () => this.getButtonClick();
-            if (this.rewardId) {
-                this.setRewardId(this.rewardId);
+            if (this.rtProps?.rewardId) {
+                this.setRewardId(this.rtProps.rewardId);
             }
             this.room = await this.client.connect(`update`, {
-                location: this.baseParcel,
+                location: this.rtProps.baseParcel,
             });
-            if(!this.room) this.log(`Failed to connect to reward.tools Client`)
+            if (!this.room) this.log(`Failed to connect to reward.tools Client`)
         })
     }
 
@@ -65,7 +70,7 @@ export class RTPOAPBooth {
         try {
             const address = this.userData?.userId;
             const displayName = this.userData?.displayName;
-            const callUrl = `${this.endpoint}/v1/quest/fetch`;
+            const callUrl = `${this.rtProps.endpoint!}/v1/quest/fetch`;
             const response = await signedFetch(callUrl, {
                 headers: { "Content-Type": "application/json" },
                 method: "POST",
@@ -79,7 +84,7 @@ export class RTPOAPBooth {
             if (response.status !== 200) throw Error(json?.message);
             return json
         } catch (err: any) {
-            this.debug && this.log(`RTPOAPBooth Fetch Error: ${err.message}`)
+            this.rtProps.debug! && this.log(`RTPOAPBooth Fetch Error: ${err.message}`)
             return null
         }
     }
@@ -88,48 +93,48 @@ export class RTPOAPBooth {
         let prevClick = this.lastClick;
         this.lastClick = new Date();
         if (prevClick.getTime() + 5000 > this.lastClick.getTime()) {
-            this.onAlert?.(`Warning: Please don't spam the POAP booth`);
+            this.rtProps.onAlert?.(`Warning: Please don't spam the POAP booth`);
             return
         }
         void executeTask(async () => {
             try {
-                this.debug && this.log("Claiming POAP", { rewardId: this.rewardId })
-                this.onAlert?.("Attempting to claim POAP... Please wait...")
+                this.rtProps.debug! && this.log("Claiming POAP", { rewardId: this.rtProps.rewardId })
+                this.rtProps.onAlert?.("Attempting to claim POAP... Please wait...")
                 const userData = await getUserData();
                 const realm = await getCurrentRealm();
                 if (!userData?.hasConnectedWeb3) {
-                    this.onAlert?.(`Login with an Ethereum Wallet to claim this POAP`);
+                    this.rtProps.onAlert?.(`Login with an Ethereum Wallet to claim this POAP`);
                     return;
                 }
                 const address = userData?.publicKey;
                 const displayName = userData?.displayName;
-                const callUrl = `${this.endpoint}/v1/poap/claim`;
+                const callUrl = `${this.rtProps.endpoint!}/v1/poap/claim`;
                 let response = await signedFetch(callUrl, {
                     headers: { "Content-Type": "application/json" },
                     method: "POST",
                     body: JSON.stringify({
                         address,
                         displayName,
-                        rewardId: this.rewardId,
+                        rewardId: this.rtProps.rewardId,
                         realm,
                         timezone: new Date().toString(),
                     }),
                 })
                 let json = JSON.parse(response.text ?? "");
                 const { message } = json;
-                this.debug && this.log("Reward claim", { json })
-                this.onAlert?.(message)
+                this.rtProps.debug && this.log("Reward claim", { json })
+                this.rtProps.onAlert?.(message)
             } catch (err: any) {
-                this.onAlert?.(err?.message ?? `An error has occcured`)
+                this.rtProps.onAlert?.(err?.message ?? `An error has occcured`)
             }
         })
     }
 
     async setRewardId(rewardId: string) {
-        this.debug && this.log(`setRewardID`, rewardId)
-        this.rewardId = rewardId;
+        this.rtProps.debug && this.log(`setRewardID`, rewardId)
+        this.rtProps.rewardId = rewardId;
         if (!this.initialized) {
-            this.debug && this.log(`RTPOAPBooth not initialized. Waiting 5 seconds to reattempt..`)
+            this.rtProps.debug && this.log(`RTPOAPBooth not initialized. Waiting 5 seconds to reattempt..`)
             Dash_Wait(() => {
                 this.setRewardId(rewardId);
             }, 5)
@@ -138,18 +143,18 @@ export class RTPOAPBooth {
         try {
             const reward = await this.getReward(rewardId);
             if (reward == null) {
-                this.onAlert?.(`Reward not found`);
+                this.rtProps.onAlert?.(`Reward not found`);
                 return;
             }
             this.rewardData = reward?.data;
-            this.debug && this.log(`Got Reward`, this.rewardData)
+            this.rtProps.debug && this.log(`Got Reward`, this.rewardData)
             this.booth.setImage(
                 this.rewardData.imageUrl,
                 `https://poap.gallery/event/${this.rewardData.event_id}`,
                 `View Event on POAP.gallery`
             )
         } catch (err: any) {
-            this.debug && this.log(`Got Error`, err.message)
+            this.rtProps.debug && this.log(`Got Error`, err.message)
         }
     }
 
