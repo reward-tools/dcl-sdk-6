@@ -6,7 +6,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "docs": "api-documenter markdown --output-folder docs/ --input-folder temp/",
-    "build": "rm -rf temp/ && rollup -c && npm run docs",
+    "build": "rm -rf temp/ && rollup -c --environment BUILD:production && npm run docs",
     "link": "npm link && rollup --watch -c ",
     "test": "jest --detectOpenHandles --silent=false --verbose --colors --runInBand"
   },
