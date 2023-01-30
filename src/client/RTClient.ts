@@ -28,7 +28,8 @@ export class RTClient {
     }
 
     setConfig(location: string, roomName: string, debug: boolean = false){
-        if(this.options.location !== location && this.options.roomName !== roomName){
+        if(this.options === undefined || (this.options.location !== location && this.options.roomName !== roomName)){
+            this.options = {};
             this.options.location = location;
             this.options.roomName = roomName;
             this.options.debug = debug;
@@ -45,7 +46,7 @@ export class RTClient {
         location: string;
         roomName: string;
         debug?: boolean;
-    } = {}): Promise<Room | null> {
+    } = this.options): Promise<Room | null> {
 
         if(options.debug == undefined) this.debug = false;
         else this.debug = options.undefined;
