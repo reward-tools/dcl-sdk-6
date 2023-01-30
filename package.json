@@ -1,6 +1,6 @@
 {
   "name": "rt-dcl-sdk-6",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "reward.tools Decentraland SDK 6 Library",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
