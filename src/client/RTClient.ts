@@ -14,7 +14,6 @@ export class RTClient {
     options?: any;
     client: Client;
     room?: Room;
-    debug: boolean = false;
     attempts: number = 0;
     connecting: boolean = false;
     onRoomConnectedCbs: ((room: Room) => void)[] = [];
@@ -25,7 +24,7 @@ export class RTClient {
 
     onRoomConnected(cb: (room: Room) => void){
         this.onRoomConnectedCbs.push(cb);
-        this.debug && this.log(`onRoomConnected Callback was set`)
+        this.options.debug && this.log(`onRoomConnected Callback was set`)
     }
 
     setConfig(location: string, roomName: string, debug: boolean){
@@ -39,7 +38,7 @@ export class RTClient {
                 roomName,
                 debug,
             })
-            this.debug && this.log(`Config was set`)
+            this.options.debug && this.log(`Config was set`)
         }
     }
 
@@ -49,8 +48,8 @@ export class RTClient {
         debug?: boolean;
     } = this.options): Promise<Room | null> {
 
-        if(options.debug == undefined) this.debug = false;
-        else this.debug = options.undefined;
+        if(options.debug == undefined) this.options.debug = false;
+        else this.options.debug = options.undefined;
 
         //An ID for debugging connection instances
         const id = makeid(5);
@@ -58,7 +57,7 @@ export class RTClient {
         //Record attempts. In case of disconnect we will use this to time the reconnection attempt
         this.attempts++;
         if (this.attempts > 15) this.attempts = 15;
-        this.debug && this.log(`Attempting connection to server id:${id} (attempts: ${this.attempts})`)
+        this.options.debug && this.log(`Attempting connection to server id:${id} (attempts: ${this.attempts})`)
         
         //Populate user and options
         options.realm = await getCurrentRealm();
@@ -74,14 +73,14 @@ export class RTClient {
                 this.onRoomConnectedCbs.forEach(cb => cb(this.room!));
                 this.onConnected(id);
                 this.room.onStateChange((state) => {
-                    this.debug && this.log(`STATE CHANGE`, state)
+                    this.options.debug && this.log(`STATE CHANGE`, state)
                 });
                 this.room.onLeave((code) => {
-                    this.debug && this.log(`Left, id:${id} code =>`, code);
+                    this.options.debug && this.log(`Left, id:${id} code =>`, code);
                     this.onDisconnect(id, handleReconnection);
                 });
                 this.room.onError((code) => {
-                    this.debug && this.log(`Error, id:${id} code =>`, code);
+                    this.options.debug && this.log(`Error, id:${id} code =>`, code);
                 });
             }
             return this.room;
@@ -92,12 +91,12 @@ export class RTClient {
     }
 
     onConnected(id: string) {
-        this.debug && this.log(`Connected to socket server (id:${id})`);
+        this.options.debug && this.log(`Connected to socket server (id:${id})`);
         this.attempts = 0;
     }
 
     onDisconnect(id: string, reconnect: () => void) {
-        this.debug && this.log(`Disconnected from socket server (id:${id})`);
+        this.options.debug && this.log(`Disconnected from socket server (id:${id})`);
         reconnect();
     }
 
