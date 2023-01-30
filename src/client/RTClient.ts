@@ -28,7 +28,7 @@ export class RTClient {
         this.debug && this.log(`onRoomConnected Callback was set`)
     }
 
-    setConfig(location: string, roomName: string, debug: boolean = false){
+    setConfig(location: string, roomName: string, debug: boolean){
         if(this.options === undefined || (this.options.location !== location && this.options.roomName !== roomName)){
             this.options = {};
             this.options.location = location;
