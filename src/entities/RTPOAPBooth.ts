@@ -38,10 +38,10 @@ export class RTPOAPBooth {
             ...rtProps,
         });
         this.client = rtClient;
+        this.client.setConfig(this.rtProps.baseParcel, `update`, this.rtProps.debug!);
         this.client.onRoomConnected((room: Room) => {
             this.room = room;
         });
-        this.client.setConfig(this.rtProps.baseParcel, `update`, this.rtProps.debug!);
         executeTask(async () => {
             await this.loadUserData();
             this.initialized = true;
