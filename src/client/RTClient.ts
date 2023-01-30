@@ -25,6 +25,7 @@ export class RTClient {
 
     onRoomConnected(cb: (room: Room) => void){
         this.onRoomConnectedCbs.push(cb);
+        this.debug && this.log(`onRoomConnected Callback was set`)
     }
 
     setConfig(location: string, roomName: string, debug: boolean = false){
@@ -38,7 +39,7 @@ export class RTClient {
                 roomName,
                 debug,
             })
-            this.log(`Config was set`)
+            this.debug && this.log(`Config was set`)
         }
     }
 

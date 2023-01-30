@@ -40,7 +40,6 @@ export class RTPOAPBooth {
         this.client = rtClient;
         this.client.onRoomConnected((room: Room) => {
             this.room = room;
-            this.log(`Set onRoomConnected callback`)
         });
         this.client.setConfig(this.rtProps.baseParcel, `update`, this.rtProps.debug);
         executeTask(async () => {
