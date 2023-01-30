@@ -73,7 +73,7 @@ export class RTPOAPBooth {
             if (response.status !== 200) throw Error(json?.message);
             return json
         } catch (err: any) {
-            this.rtProps.debug! && this.log(`RTPOAPBooth Fetch Error: ${err.message}`)
+            this.rtProps.debug! && this.log(`Fetch Error: ${err.message}`)
             return null
         }
     }
@@ -82,7 +82,7 @@ export class RTPOAPBooth {
         this.rtProps.debug && this.log(`setRewardID`, rewardId)
         this.rtProps.rewardId = rewardId;
         if (!this.initialized) {
-            this.rtProps.debug && this.log(`RTPOAPBooth not initialized. Waiting 5 seconds to reattempt..`)
+            this.rtProps.debug && this.log(`not initialized. Waiting 5 seconds to reattempt..`)
             Dash_Wait(() => {
                 this.setRewardId(rewardId);
             }, 5)
@@ -143,13 +143,12 @@ export class RTPOAPBooth {
                         timezone: new Date().toString(),
                     }),
                 })
-                this.log("response",response.status, response.statusText)
                 const json = JSON.parse(response.text ?? "");
+                if (response.status !== 200) throw Error(json?.message);
                 const { message } = json;
                 this.rtProps.debug && this.log("Reward claim", { json })
                 this.rtProps.onAlert?.(message)
             } catch (err: any) {
-                this.log("err",err.status, err.statusText)
                 this.rtProps.onAlert?.(err?.message ?? `An error has occcured`)
             }
         })
