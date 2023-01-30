@@ -103,3 +103,5 @@ export class RTClient {
         log(`[ 🏆 RTClient 🏆 ]`, ...args)
     }
 }
+
+export const rtClient = new RTClient(`wss://api.reward.tools`);

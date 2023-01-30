@@ -4,9 +4,7 @@ import { signedFetch } from "@decentraland/SignedFetch";
 import { Room } from "colyseus.js";
 import { Dash_Wait } from "dcldash";
 import { Booth, IBoothProps } from "zootools";
-import { RTClient } from "../client/RTClient";
-
-export const rtClient = new RTClient(`wss://api.reward.tools`);
+import { rtClient, RTClient } from "../client/RTClient";
 
 export class RTPOAPBooth {
 
@@ -40,11 +38,11 @@ export class RTPOAPBooth {
             ...rtProps,
         })
         this.client = rtClient;
-        rtClient.onRoomConnected((room: Room) => {
+        this.client.onRoomConnected((room: Room) => {
             this.room = room;
             this.log(`Set onRoomConnected callback`)
         });
-        rtClient.setConfig(this.rtProps.baseParcel, `update`);
+        this.client.setConfig(this.rtProps.baseParcel, `update`, this.rtProps.debug);
         executeTask(async () => {
             await this.loadUserData();
             this.initialized = true;
