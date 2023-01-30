@@ -36,7 +36,7 @@ export class RTPOAPBooth {
             dispenserModelPath: `poap_assets/models/POAP_dispenser.glb`,
             buttonModelPath: `poap_assets/models/POAP_button.glb`,
             ...rtProps,
-        })
+        });
         this.client = rtClient;
         this.client.onRoomConnected((room: Room) => {
             this.room = room;
@@ -71,15 +71,15 @@ export class RTPOAPBooth {
             })
             const json = JSON.parse(response.text ?? "");
             if (response.status !== 200) throw Error(json?.message);
-            return json
+            return json;
         } catch (err: any) {
             this.rtProps.debug! && this.log(`Fetch Error: ${err.message}`)
-            return null
+            return null;
         }
     }
 
     async setRewardId(rewardId: string) {
-        this.rtProps.debug && this.log(`setRewardID`, rewardId)
+        this.rtProps.debug && this.log(`Reward ID was set: `, rewardId);
         this.rtProps.rewardId = rewardId;
         if (!this.initialized) {
             this.rtProps.debug && this.log(`not initialized. Waiting 5 seconds to reattempt..`)
