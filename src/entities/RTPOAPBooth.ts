@@ -3,9 +3,10 @@ import { getUserData, UserData } from "@decentraland/Identity";
 import { signedFetch } from "@decentraland/SignedFetch";
 import { Room } from "colyseus.js";
 import { Dash_Wait } from "dcldash";
-import { RTClientManager } from "src/client/RTClientManager";
 import { Booth, IBoothProps } from "zootools";
 import { RTClient } from "../client/RTClient";
+
+export const rtClient = new RTClient(`wss://api.reward.tools`);
 
 export class RTPOAPBooth {
 
@@ -38,37 +39,18 @@ export class RTPOAPBooth {
             buttonModelPath: `poap_assets/models/POAP_button.glb`,
             ...rtProps,
         })
-        this.client = (RTClientManager.getOrCreateClient(
-            this.rtProps.endpoint!, 
-            this.rtProps.baseParcel!, 
-            this.rtProps.debug!,
-        )).client;
-        void this.connection();
+        this.client = rtClient;
+        rtClient.onRoomConnected((room: Room) => {
+            this.room = room;
+            this.log(`Set onRoomConnected callback`)
+        });
+        rtClient.setConfig(this.rtProps.baseParcel, `update`);
         executeTask(async () => {
             await this.loadUserData();
             this.initialized = true;
             this.setOnButtonClick();
             if (this.rtProps?.rewardId) this.setRewardId(this.rtProps.rewardId);
         });
-    }
-
-    async connection(){
-        const mngrRoom = await RTClientManager.joinOrCreateRoom(
-            this.rtProps.baseParcel,
-            `update`,
-        );
-        if(mngrRoom?.loading === true){
-            Dash_Wait(() => {
-                this.log(`Room is still loading. Waiting 5 Seconds for reattempt.`)
-                this.connection();
-            }, 5);
-            return;
-        }
-        if(!mngrRoom?.room){
-            this.log(`Failed to connect to reward.tools Client`)
-            return;
-        }
-        this.room = mngrRoom.room;
     }
 
     async loadUserData() {

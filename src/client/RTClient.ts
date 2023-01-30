@@ -10,20 +10,45 @@ import { Dash_Wait } from "dcldash";
 import { makeid } from "zootools";
 
 export class RTClient {
-
-    room?: Room;
+    
     options?: any;
     client: Client;
-    attempts = 0;
+    room?: Room;
+    debug: boolean = false;
+    attempts: number = 0;
+    connecting: boolean = false;
+    onRoomConnectedCbs: ((room: Room) => void)[] = [];
 
-    constructor(public endpoint: string, public location: string, public debug: boolean = true) {
-        this.client = new Client(this.endpoint);
+    constructor(public endpoint: string) {
+        this.client = new Client(this.endpoint); 
+    }
+
+    onRoomConnected(cb: (room: Room) => void){
+        this.onRoomConnectedCbs.push(cb);
+    }
+
+    setConfig(location: string, roomName: string, debug: boolean = false){
+        if(this.options.location !== location && this.options.roomName !== roomName){
+            this.options.location = location;
+            this.options.roomName = roomName;
+            this.options.debug = debug;
+            this.connect({
+                location,
+                roomName,
+                debug,
+            })
+            this.log(`Config was set`)
+        }
     }
 
     async connect(options: any & {
         location: string;
         roomName: string;
+        debug?: boolean;
     } = {}): Promise<Room | null> {
+
+        if(options.debug == undefined) this.debug = false;
+        else this.debug = options.undefined;
 
         //An ID for debugging connection instances
         const id = makeid(5);
@@ -42,18 +67,21 @@ export class RTClient {
             Dash_Wait(() => this.connect(options), this.attempts);
         }
         try {
-            this.room = await this.client.joinOrCreate<any>(options.roomName, options)
-            this.onConnected(id);
-            this.room.onStateChange((state) => {
-                this.debug && this.log(`STATE CHANGE`, state)
-            });
-            this.room.onLeave((code) => {
-                this.debug && this.log(`Left, id:${id} code =>`, code);
-                this.onDisconnect(id, handleReconnection);
-            });
-            this.room.onError((code) => {
-                this.debug && this.log(`Error, id:${id} code =>`, code);
-            });
+            this.room = await this.client.joinOrCreate<any>(options.roomName, options);
+            if(this.room){
+                this.onRoomConnectedCbs.forEach(cb => cb(this.room!));
+                this.onConnected(id);
+                this.room.onStateChange((state) => {
+                    this.debug && this.log(`STATE CHANGE`, state)
+                });
+                this.room.onLeave((code) => {
+                    this.debug && this.log(`Left, id:${id} code =>`, code);
+                    this.onDisconnect(id, handleReconnection);
+                });
+                this.room.onError((code) => {
+                    this.debug && this.log(`Error, id:${id} code =>`, code);
+                });
+            }
             return this.room;
         } catch (e: any) {
             this.onDisconnect(id, handleReconnection);
