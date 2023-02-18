@@ -63,10 +63,22 @@ export class RTClient {
         options.realm = await getCurrentRealm();
         options.userData = await getUserData();
         options.timezone = new Date().toString();
+
+        //Ensure avatars are pointed to content servers
+        const regex = /^https?:\/\/[^\/]+\.[^\/]+\/content\/contents\/[a-zA-Z0-9]+$/;
+        const snapshots = options?.userData?.avatar?.snapshots;
+        Object.keys(snapshots).forEach(key => {
+            const snapshot = snapshots[key];
+            if (!regex.test(snapshot)) {
+                delete options.userData.avatar.snapshots[key];
+            }
+        });
+
         this.options = options;
         const handleReconnection = () => {
             Dash_Wait(() => this.connect(options), this.attempts);
         }
+
         try {
             this.room = await this.client.joinOrCreate<any>(options.roomName, options);
             if(this.room){
