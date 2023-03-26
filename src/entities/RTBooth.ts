@@ -84,17 +84,10 @@ export class RTBooth {
         }
     }
 
-    async setDCLAirdropId(rewardId: string) {
+    async setDCLAirdropRewardId(rewardId: string) {
         await this.initialize();
         this.rtProps.debug && this.log(`Reward ID was set: `, rewardId);
         this.rtProps.rewardId = rewardId;
-        if (!this.initialized) {
-            this.rtProps.debug && this.log(`not initialized. Waiting 5 seconds to reattempt..`)
-            Dash_Wait(() => {
-                this.setDCLAirdropId(rewardId);
-            }, 5)
-            return;
-        }
         try {
             const reward = await this.getReward(rewardId);
             if (reward == null) {
@@ -123,13 +116,6 @@ export class RTBooth {
         await this.initialize();
         this.rtProps.debug && this.log(`Reward ID was set: `, rewardId);
         this.rtProps.rewardId = rewardId;
-        if (!this.initialized) {
-            this.rtProps.debug && this.log(`not initialized. Waiting 5 seconds to reattempt..`)
-            Dash_Wait(() => {
-                this.setPOAPRewardId(rewardId);
-            }, 5)
-            return;
-        }
         try {
             const reward = await this.getReward(rewardId);
             if (reward == null) {
