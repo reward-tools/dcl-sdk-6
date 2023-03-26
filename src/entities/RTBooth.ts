@@ -33,7 +33,7 @@ export class RTBooth {
         this.booth = new Booth({
             buttonText: `Claim this Item`,
             onButtonClick: () => { },
-            wrapTexturePath: `images/wrap1.png`,
+            wrapTexturePath: `images/wrap.png`,
             dispenserModelPath: `models/dispenser.glb`,
             buttonModelPath: `models/button.glb`,
             alphaSrcTxtPath: `images/alpha-circle.png`,
