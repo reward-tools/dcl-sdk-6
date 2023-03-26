@@ -42,7 +42,7 @@ Spawn a POAP booth.
    engine.addEntity(dispenser.booth);
    ```
 
-Be sure to add the [poap_assets](https://github.com/tyzoo/tyzoo.github.io/tree/master/assets/poap_assets) folder to the root of your scene
+Be sure to add the `models` and `images` folders to the root of your scene with the respective files in this repository
 
 ## Copyright info
 
