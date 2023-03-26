@@ -10,7 +10,7 @@ import { Dash_Wait } from "dcldash";
 import { makeid } from "zootools";
 
 export class RTClient {
-    
+
     options?: any;
     client: Client;
     room?: Room;
@@ -19,16 +19,16 @@ export class RTClient {
     onRoomConnectedCbs: ((room: Room) => void)[] = [];
 
     constructor(public endpoint: string) {
-        this.client = new Client(this.endpoint); 
+        this.client = new Client(this.endpoint);
     }
 
-    onRoomConnected(cb: (room: Room) => void){
+    onRoomConnected(cb: (room: Room) => void) {
         this.onRoomConnectedCbs.push(cb);
         this.options.debug && this.log(`onRoomConnected Callback was set`)
     }
 
-    setConfig(location: string, roomName: string, debug: boolean){
-        if(this.options === undefined || (this.options.location !== location && this.options.roomName !== roomName)){
+    setConfig(location: string, roomName: string, debug: boolean) {
+        if (this.options === undefined || (this.options.location !== location && this.options.roomName !== roomName)) {
             this.options = {};
             this.options.location = location;
             this.options.roomName = roomName;
@@ -48,7 +48,7 @@ export class RTClient {
         debug?: boolean;
     } = this.options): Promise<Room | null> {
 
-        if(options.debug == undefined) this.options.debug = false;
+        if (options.debug == undefined) this.options.debug = false;
         else this.options.debug = options.undefined;
 
         //An ID for debugging connection instances
@@ -58,7 +58,7 @@ export class RTClient {
         this.attempts++;
         if (this.attempts > 15) this.attempts = 15;
         this.options.debug && this.log(`Attempting connection to server id:${id} (attempts: ${this.attempts})`)
-        
+
         //Populate user and options
         options.realm = await getCurrentRealm();
         options.userData = await getUserData();
@@ -81,7 +81,7 @@ export class RTClient {
 
         try {
             this.room = await this.client.joinOrCreate<any>(options.roomName, options);
-            if(this.room){
+            if (this.room) {
                 this.onRoomConnectedCbs.forEach(cb => cb(this.room!));
                 this.onConnected(id);
                 this.room.onStateChange((state) => {

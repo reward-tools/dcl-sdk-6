@@ -23,20 +23,22 @@ To use any of the helpers provided by this library:
 ### POAP Booth
 Spawn a POAP booth.
    ```ts
-   import { RTPOAPBooth } from "rt-dcl-sdk-6";
+   import { RTBooth } from "rt-dcl-sdk-6";
    import { AlertSystem } from "zootools";
    const alertSystem = new AlertSystem();
-   const dispenser = new RTPOAPBooth(
+   const dispenser = new RTBooth(
       {
          transformArgs: {
             position: new Vector3(8, 0, 8),
          },
          baseParcel: `96,99`,
          onAlert: (alert: string) => alertSystem.new(alert),
-         //rewardId: ``, //set rewardId here
       },
    );
-   dispenser.setRewardId("rewardId"); // or here
+   //POAP Drop
+   dispenser.setPOAPRewardId("rewardId");
+   //...or DCL Airdrop
+   dispenser.setDCLAirdropRewardId("rewardId");
    engine.addEntity(dispenser.booth);
    ```
 

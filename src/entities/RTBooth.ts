@@ -6,7 +6,7 @@ import { Dash_Wait } from "dcldash";
 import { Booth, IBoothProps } from "zootools";
 import { rtClient, RTClient } from "../client/RTClient";
 
-export class RTPOAPBooth {
+export class RTBooth {
 
     public booth: Booth;
     public client!: RTClient;
@@ -25,32 +25,38 @@ export class RTPOAPBooth {
             rewardId?: string;
             endpoint?: string;
             debug?: boolean;
+            useClient?: boolean;
         },
     ) {
         if (rtProps?.debug == undefined) this.rtProps.debug = false;
         if (rtProps?.endpoint == undefined) this.rtProps.endpoint = `https://api.reward.tools`;
         this.booth = new Booth({
-            buttonText: `Claim this POAP`,
+            buttonText: `Claim this Item`,
             onButtonClick: () => { },
-            wrapTexturePath: `poap_assets/images/wrap1.png`,
-            dispenserModelPath: `poap_assets/models/POAP_dispenser.glb`,
-            buttonModelPath: `poap_assets/models/POAP_button.glb`,
+            wrapTexturePath: `images/wrap1.png`,
+            dispenserModelPath: `models/dispenser.glb`,
+            buttonModelPath: `models/button.glb`,
             ...rtProps,
         });
-        this.client = rtClient;
-        this.client.setConfig(this.rtProps.baseParcel, `update`, this.rtProps.debug!);
-        this.client.onRoomConnected((room: Room) => {
-            this.room = room;
-        });
+        if (rtProps.useClient) {
+            this.client = rtClient;
+            this.client.setConfig(
+                this.rtProps.baseParcel,
+                `update`,
+                this.rtProps.debug!,
+            );
+            this.client.onRoomConnected((room: Room) => {
+                this.room = room;
+            });
+        }
         executeTask(async () => {
-            await this.loadUserData();
-            this.initialized = true;
-            this.setOnButtonClick();
-            if (this.rtProps?.rewardId) this.setRewardId(this.rtProps.rewardId);
+            await this.initialize();
         });
     }
 
-    async loadUserData() {
+    async initialize() {
+        if (this.initialized) return true
+        this.initialized = true;
         this.userData = await getUserData();
         this.realm = await getCurrentRealm();
     }
@@ -78,13 +84,14 @@ export class RTPOAPBooth {
         }
     }
 
-    async setRewardId(rewardId: string) {
+    async setDCLAirdropId(rewardId: string) {
+        await this.initialize();
         this.rtProps.debug && this.log(`Reward ID was set: `, rewardId);
         this.rtProps.rewardId = rewardId;
         if (!this.initialized) {
             this.rtProps.debug && this.log(`not initialized. Waiting 5 seconds to reattempt..`)
             Dash_Wait(() => {
-                this.setRewardId(rewardId);
+                this.setDCLAirdropId(rewardId);
             }, 5)
             return;
         }
@@ -92,9 +99,44 @@ export class RTPOAPBooth {
             const reward = await this.getReward(rewardId);
             if (reward == null) {
                 const isPreview = await isPreviewMode();
-                if(isPreview){
-                    this.rtProps.onAlert?.(`Deploy your scene to claim POAP`);
-                }else{
+                if (isPreview) {
+                    this.rtProps.onAlert?.(`Deploy your scene to claim items`);
+                } else {
+                    this.rtProps.onAlert?.(`Reward not found`);
+                }
+                return;
+            }
+            this.rewardData = reward?.data;
+            this.rtProps.debug && this.log(`Got Reward`, this.rewardData)
+            this.booth.setImage(
+                this.rewardData.imageUrl,
+                `https://market.decentraland.org/contracts/${this.rewardData.contractAddress}/tokens/${this.rewardData.blockchainId}`,
+                `View item on Decentraland Marketplace`
+            )
+            this.setOnButtonClick(`dcl/claim`);
+        } catch (err: any) {
+            this.rtProps.debug && this.log(`Got Error`, err.message)
+        }
+    }
+
+    async setPOAPRewardId(rewardId: string) {
+        await this.initialize();
+        this.rtProps.debug && this.log(`Reward ID was set: `, rewardId);
+        this.rtProps.rewardId = rewardId;
+        if (!this.initialized) {
+            this.rtProps.debug && this.log(`not initialized. Waiting 5 seconds to reattempt..`)
+            Dash_Wait(() => {
+                this.setPOAPRewardId(rewardId);
+            }, 5)
+            return;
+        }
+        try {
+            const reward = await this.getReward(rewardId);
+            if (reward == null) {
+                const isPreview = await isPreviewMode();
+                if (isPreview) {
+                    this.rtProps.onAlert?.(`Deploy your scene to claim items`);
+                } else {
                     this.rtProps.onAlert?.(`Reward not found`);
                 }
                 return;
@@ -106,13 +148,13 @@ export class RTPOAPBooth {
                 `https://poap.gallery/event/${this.rewardData.event_id}`,
                 `View Event on POAP.gallery`
             )
-            this.setOnButtonClick();
+            this.setOnButtonClick(`poap/claim`);
         } catch (err: any) {
             this.rtProps.debug && this.log(`Got Error`, err.message)
         }
     }
 
-    async getButtonClick() {
+    async getButtonClick(path: string) {
         let prevClick = this.lastClick;
         this.lastClick = new Date();
         if (prevClick.getTime() + 5000 > this.lastClick.getTime()) {
@@ -121,17 +163,17 @@ export class RTPOAPBooth {
         }
         void executeTask(async () => {
             try {
-                this.rtProps.debug! && this.log("Claiming POAP", { rewardId: this.rtProps.rewardId })
-                this.rtProps.onAlert?.("Attempting to claim POAP... Please wait...")
+                this.rtProps.debug! && this.log("Claiming Item", { rewardId: this.rtProps.rewardId })
+                this.rtProps.onAlert?.("Attempting to claim item... Please wait...")
                 const userData = await getUserData();
                 const realm = await getCurrentRealm();
                 if (!userData?.hasConnectedWeb3) {
-                    this.rtProps.onAlert?.(`Login with an Ethereum Wallet to claim this POAP`);
+                    this.rtProps.onAlert?.(`Login with an Ethereum Wallet to claim this item`);
                     return;
                 }
                 const address = userData?.publicKey;
                 const displayName = userData?.displayName;
-                const callUrl = `${this.rtProps.endpoint!}/v1/poap/claim`;
+                const callUrl = `${this.rtProps.endpoint!}/v1/${path}`;
                 const response = await signedFetch(callUrl, {
                     headers: { "Content-Type": "application/json" },
                     method: "POST",
@@ -154,8 +196,8 @@ export class RTPOAPBooth {
         })
     }
 
-    setOnButtonClick(){
-        this.booth.onButtonClick = () => this.getButtonClick();
+    setOnButtonClick(path: string) {
+        this.booth.onButtonClick = () => this.getButtonClick(path);
         this.booth.button.addComponentOrReplace(new OnPointerDown(() => {
             this.booth.onButtonClick();
             this.booth.button.getComponent(Animator).getClip('Button_Action').play();

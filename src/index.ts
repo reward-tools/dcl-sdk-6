@@ -1,1 +1,1 @@
-export { RTPOAPBooth } from "./entities/RTPOAPBooth";
+export { RTBooth } from "./entities/RTBooth";
