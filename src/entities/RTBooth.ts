@@ -31,6 +31,7 @@ export class RTBooth {
         if (rtProps?.debug == undefined) this.rtProps.debug = false;
         if (rtProps?.endpoint == undefined) this.rtProps.endpoint = `https://api.reward.tools`;
         this.booth = new Booth({
+            useHostedAssets: false,
             buttonText: `Claim this Item`,
             onButtonClick: () => { },
             wrapTexturePath: `images/wrap1.png`,
