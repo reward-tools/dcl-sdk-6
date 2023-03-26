@@ -107,7 +107,7 @@ export class RTBooth {
                 `https://market.decentraland.org/contracts/${this.rewardData.contractAddress}/tokens/${this.rewardData.blockchainId}`,
                 `View item on Decentraland Marketplace`
             )
-            this.setOnButtonClick(`dcl/claim`);
+            this.setOnButtonClick(`dcl/claim`, `Mint an Item`);
         } catch (err: any) {
             this.rtProps.debug && this.log(`Got Error`, err.message)
         }
@@ -135,7 +135,7 @@ export class RTBooth {
                 `https://poap.gallery/event/${this.rewardData.event_id}`,
                 `View Event on POAP.gallery`
             )
-            this.setOnButtonClick(`poap/claim`);
+            this.setOnButtonClick(`poap/claim`, `Mint a POAP`);
         } catch (err: any) {
             this.rtProps.debug && this.log(`Got Error`, err.message)
         }
@@ -183,7 +183,7 @@ export class RTBooth {
         })
     }
 
-    setOnButtonClick(path: string) {
+    setOnButtonClick(path: string, hoverText: string) {
         this.booth.onButtonClick = () => this.getButtonClick(path);
         this.booth.button.addComponentOrReplace(new OnPointerDown(() => {
             this.booth.onButtonClick();
@@ -192,7 +192,7 @@ export class RTBooth {
                 this.booth.button.getComponent(Animator).getClip('Button_Action').stop();
             }, 1)
         }, {
-            hoverText: `Claim Attendance Token`,
+            hoverText,
         }))
     }
 
