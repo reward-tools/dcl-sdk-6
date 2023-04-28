@@ -64,6 +64,7 @@ export class RTBooth {
 
     async getReward(rewardId: string): Promise<any> {
         try {
+            if (!this.initialized) await this.initialize()
             const address = this.userData?.userId;
             const displayName = this.userData?.displayName;
             const callUrl = `${this.rtProps.endpoint!}/v1/quest/fetch`;
@@ -86,7 +87,7 @@ export class RTBooth {
     }
 
     async setDCLAirdropRewardId(rewardId: string) {
-        await this.initialize();
+        if (!this.initialized) await this.initialize()
         this.rtProps.debug && this.log(`Reward ID was set: `, rewardId);
         this.rtProps.rewardId = rewardId;
         try {
@@ -114,7 +115,7 @@ export class RTBooth {
     }
 
     async setPOAPRewardId(rewardId: string) {
-        await this.initialize();
+        if (!this.initialized) await this.initialize()
         this.rtProps.debug && this.log(`Reward ID was set: `, rewardId);
         this.rtProps.rewardId = rewardId;
         try {
@@ -145,7 +146,7 @@ export class RTBooth {
         let prevClick = this.lastClick;
         this.lastClick = new Date();
         if (prevClick.getTime() + 5000 > this.lastClick.getTime()) {
-            this.rtProps.onAlert?.(`Warning: Please don't spam the POAP booth`);
+            this.rtProps.onAlert?.(`Warning: Please don't spam the booth`);
             return
         }
         void executeTask(async () => {
