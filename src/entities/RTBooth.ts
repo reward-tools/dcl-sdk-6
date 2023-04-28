@@ -57,9 +57,9 @@ export class RTBooth {
 
     async initialize() {
         if (this.initialized) return true
-        this.initialized = true;
         this.userData = await getUserData();
         this.realm = await getCurrentRealm();
+        this.initialized = true;
     }
 
     async getReward(rewardId: string): Promise<any> {
@@ -68,6 +68,7 @@ export class RTBooth {
             const address = this.userData?.userId;
             const displayName = this.userData?.displayName;
             const callUrl = `${this.rtProps.endpoint!}/v1/quest/fetch`;
+            this.log({ userData: this.userData })
             const response = await signedFetch(callUrl, {
                 headers: { "Content-Type": "application/json" },
                 method: "POST",
